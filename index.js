@@ -25,9 +25,9 @@ async function updateConfigJs(sessionId) {
   let configData = fs.readFileSync(CONFIG_PATH, 'utf-8');
 
   const updatedConfig = configData.replace(
-    /SESSION_ID:\s*process\.env\.SESSION_ID\s*\|\|\s*['"`]update this['"`]/,
-    `SESSION_ID: '${sessionId}'`
-  );
+  /SESSION_ID:\s*process\.env\.SESSION_ID\s*\|\|\s*['"`][^'"`]*['"`],?/,
+  `SESSION_ID: '${sessionId}',`
+);
 
   fs.writeFileSync(CONFIG_PATH, updatedConfig, 'utf-8');
   console.log("🌀 SESSION_ID saved");
