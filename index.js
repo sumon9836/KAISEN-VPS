@@ -46,9 +46,6 @@ function main() {
       console.log("🍓 Repo exists");
     }
 setupSessionId();
-console.log("🍒 Installing dependencies...");
-    execSync(`npm install`, { cwd: CLONE_DIR, stdio: 'inherit' });
-
     console.log("🔮 Starting KAISEN-MD-V2 bot...");
     execSync(`npm start`, { cwd: CLONE_DIR, stdio: 'inherit' });
   } catch (error) {
