@@ -1,70 +1,59 @@
-const { execSync } = require('child_process');
-const fs = require('fs');
-const readline = require('readline');
-const path = require('path');
+// 👉 Set your SESSION_ID here
+const SESSION_ID_VALUE = 'yourSessionID#key'; // <-- Put your actual ID here
 
+
+
+
+
+
+const { execSync } = require('child_process');const fs = require('fs');
+const path = require('path');
 const REPO_URL = "https://github.com/sumon9836/KAISEN-MD-V2";
 const CLONE_DIR = "KAISEN-MD-V2";
 const CONFIG_PATH = path.join(CLONE_DIR, 'config.js');
-
-async function ask(question) {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  return new Promise(resolve => {
-    rl.question(question, answer => {
-      rl.close();
-      resolve(answer.trim());
-    });
-  });
+function validateSessionId(sessionId) {
+  if (!sessionId || sessionId.trim() === '' || sessionId.includes('yourSessionID')) {
+    console.error("❌ SESSION_ID is missing or not configured. Please set SESSION_ID_VALUE at the top of the script.");
+    process.exit(1);
+  }
 }
-
-async function updateConfigJs(sessionId) {
+function updateConfigJs(sessionId) {
   let configData = fs.readFileSync(CONFIG_PATH, 'utf-8');
 
   const updatedConfig = configData.replace(
-  /SESSION_ID:\s*process\.env\.SESSION_ID\s*\|\|\s*['"`][^'"`]*['"`],?/,
-  `SESSION_ID: '${sessionId}',`
-);
-
-  fs.writeFileSync(CONFIG_PATH, updatedConfig, 'utf-8');
+    /SESSION_ID:\s*process\.env\.SESSION_ID\s*\|\|\s*['"`][^'"`]*['"`],?/,
+    `SESSION_ID: '${sessionId}',`
+  );
+fs.writeFileSync(CONFIG_PATH, updatedConfig, 'utf-8');
   console.log("🌀 SESSION_ID saved");
 }
-
-async function setupSessionId() {
+function setupSessionId() {
   const configData = fs.readFileSync(CONFIG_PATH, 'utf-8');
 
   if (configData.includes("SESSION_ID: '") && !configData.includes("update this")) {
-    console.log("🌈 SESSION_ID already");
+    console.log("🌈 SESSION_ID already set");
     return;
   }
-
-  const sessionId = await ask('🍉 Enter your SESSION_ID:\n🍉 Enter your SESSION_ID');
-  await updateConfigJs(sessionId);
+updateConfigJs(SESSION_ID_VALUE);
 }
-
-async function main() {
+function main() {
   try {
-    if (!fs.existsSync(CLONE_DIR)) {
+    validateSessionId(SESSION_ID_VALUE);
+     if (!fs.existsSync(CLONE_DIR)) {
       console.log("🤍 Cloning KAISEN...");
       execSync(`git clone ${REPO_URL}`, { stdio: 'inherit' });
     } else {
       console.log("🍓 Repo exists");
     }
-
-    await setupSessionId();
-
-    console.log("🍒 Installing dependencies...");
+setupSessionId();
+console.log("🍒 Installing dependencies...");
     execSync(`npm install`, { cwd: CLONE_DIR, stdio: 'inherit' });
 
     console.log("🔮 Starting KAISEN-MD-V2 bot...");
     execSync(`npm start`, { cwd: CLONE_DIR, stdio: 'inherit' });
-
   } catch (error) {
     console.error("🥲 Error:", error.message);
+    process.exit(1);
   }
 }
-
 main();
